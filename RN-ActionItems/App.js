@@ -13,16 +13,19 @@ import {
 
 export default function App() {
   const [items, setItems] = useState([
-    { name: "Ben" },
-    { name: "Susan" },
-    { name: "Robert" },
+    { name: "Ben", backgroundColor: "white", borderWidth: 0 },
+    { name: "Susan", backgroundColor: "white", borderWidth: 0 },
+    { name: "Robert", backgroundColor: "white", borderWidth: 0 },
   ]);
   const [item, setItem] = useState();
-  const [editItem, setEditItem] = useState({ name: "", index: "" });
-  const [modalVisible, setModalVisible] = useState(false);
-  const [itemBackgroundColor, setItemBackgroundColor] = useState("white")
+  const [editItem, setEditItem] = useState();
+  const [indexEditItem, setIndexEditItem] = useState(0);
+
   const addToItem = () => {
-    let newItems = [...items, { name: item }];
+    let newItems = [
+      ...items,
+      { name: item, backgroundColor: "white", borderWidth: 0 },
+    ];
     setItems(newItems);
   };
 
@@ -31,20 +34,28 @@ export default function App() {
   };
 
   const editItemOnModel = (index) => {
-    setModalVisible(!modalVisible);
+    setIndexEditItem(index);
+
     let oldItems = [...items];
-    let oldItem = oldItems[index].name;
-    setEditItem({ name: oldItem, index: index });
-    setItem(oldItem);
+    setEditItem(oldItems[index]);
+    console.log(oldItems[index]);
+    setItem(oldItems[index]);
   };
   const saveEditItem = () => {
+    console.log(indexEditItem);
     const newItems = [...items];
-    const index = newItems.findIndex((_, i) => i === editItem.index);
+    const index = newItems.findIndex((_, i) => i === indexEditItem);
 
-    newItems[index] = { name: editItem.name };
+    console.log(item);
+    newItems[index].name = item;
     setItems(newItems);
-    setModalVisible(!modalVisible);
+    setItem(undefined);
+    cancelEditItem();
   };
+  const cancelEditItem = () => {
+    setEditItem(undefined);
+  };
+
   const moveToFirst = (name) => {
     const newItems = [...items];
     newItems.sort((x, y) => {
@@ -52,95 +63,122 @@ export default function App() {
     });
     setItems(newItems);
   };
+
+  const changeItemBackgroundColor = (index) => {
+    let newItems = [...items];
+    let indexItem = newItems.findIndex((_, i) => i === index);
+    let newItem = newItems[indexItem];
+    newItem.backgroundColor =
+      newItem.backgroundColor == "white" ? "red" : "white";
+    newItems[indexItem] = newItem;
+    setItems(newItems);
+  };
+
+  const changeItemBorderWidth = (index) => {
+    let newItems = [...items];
+    let indexItem = newItems.findIndex((_, i) => i === index);
+    let newItem = newItems[indexItem];
+    newItem.borderWidth = newItem.borderWidth == 0 ? 20 : 0;
+    newItems[indexItem] = newItem;
+    setItems(newItems);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.viewScrollView}>
         <ScrollView>
-          {items.map((item, index) => (
-            <View key={index} style={[styles.item,{backgroundColor:itemBackgroundColor}]}>
-              <Text>{item.name}</Text>
-              <Button
-                color={"red"}
-                title="delete"
-                onPress={() => deleteItem(index)}
-              ></Button>
-              <Button
-                color={"blue"}
-                title="edit"
-                onPress={() => editItemOnModel(index)}
-              ></Button>
-                    <Button
-                color={"black"}
-                title="Remark"
-                onPress={() => moveToFirst(item.name)}
-              ></Button>
-              <Button
-                color={"green"}
-                title="top"
-                onPress={() => moveToFirst(item.name)}
-              ></Button>
-                    <Button
-                color={"red"}
-                title="Color"
-                onPress={() => setItemBackgroundColor("red")}
-              ></Button>
-            </View>
-          ))}
+          {items.map((item, index) => {
+            return (
+              <View
+                key={index}
+                style={[
+                  styles.item,
+                  {
+                    backgroundColor: item.backgroundColor,
+                    borderWidth: item.borderWidth,
+                  },
+                ]}
+              >
+                <Text>{item.name}</Text>
+                <Button
+                  color={"red"}
+                  title="delete"
+                  onPress={() => deleteItem(index)}
+                ></Button>
+                <Button
+                  color={"blue"}
+                  title="edit"
+                  onPress={() => editItemOnModel(index)}
+                ></Button>
+                <Button
+                  color={"black"}
+                  title="Remark"
+                  onPress={() => changeItemBorderWidth(index)}
+                ></Button>
+                <Button
+                  color={"green"}
+                  title="top"
+                  onPress={() => moveToFirst(item.name)}
+                ></Button>
+                <Button
+                  color={"red"}
+                  title="Color"
+                  onPress={() => changeItemBackgroundColor(index)}
+                ></Button>
+              </View>
+            );
+          })}
         </ScrollView>
       </View>
       <View>
         <TextInput
-          placeholder="new item"
+          placeholder={editItem === undefined ? "new item" : editItem.name}
           style={styles.viewTextInput}
           onChangeText={(t) => setItem(t)}
         ></TextInput>
       </View>
       <View>
-        <Button
-          style={styles.btn}
-          title="click here to add item"
-          onPress={addToItem}
-        ></Button>
-      </View>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          Alert.alert("Modal has been closed.");
-          setModalVisible(!modalVisible);
-        }}
-      >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <Text style={styles.modalText}>edit item</Text>
-            <TextInput
-              placeholder={item}
-              onChangeText={(text) =>
-                setEditItem((prevState) => ({
-                  ...prevState,
-                  name: text,
-                }))
-              }
-            ></TextInput>
-
-            <View style={styles.ViewPressable}>
-              <Pressable
-                style={[styles.button, styles.buttonClose]}
+        {editItem === undefined ? (
+          <Button
+            style={styles.btn}
+            title="click here to add item"
+            onPress={addToItem}
+          ></Button>
+        ) : (
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "center",
+              width: "100%",
+            }}
+          >
+            <View
+              style={{
+                justifyContent: "center",
+                width: "30%",
+              }}
+            >
+              <Button
+                style={styles.btn}
+                title="save"
                 onPress={saveEditItem}
-              >
-                <Text style={styles.textStyle}>Save</Text>
-              </Pressable>
-              <Pressable
-                style={[styles.button, styles.buttonClose]}
-                onPress={() => setModalVisible(!modalVisible)}
-              >
-                <Text style={styles.textStyle}>cancel</Text>
-              </Pressable>
+              ></Button>
+            </View>
+            <View
+              style={{
+                justifyContent: "center",
+                width: "30%",
+              }}
+            >
+              <Button
+                style={styles.btn}
+                title="cancel"
+                onPress={cancelEditItem}
+              ></Button>
             </View>
           </View>
-        </View>
-      </Modal>
+        )}
+      </View>
     </View>
   );
 }
@@ -167,7 +205,6 @@ const styles = StyleSheet.create({
     margin: 2,
     borderColor: "#2a4944",
     borderWidth: 1,
-   
   },
   centeredView: {
     flex: 1,
