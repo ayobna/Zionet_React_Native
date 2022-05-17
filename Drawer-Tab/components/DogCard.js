@@ -35,7 +35,7 @@ const DogCard = (props) => {
           <Card.Cover size={50} source={{ uri: dogInfo.UriImage[0] }} />
         )}
         <Card.Actions>
-          <Button onPress={() => saveInMyDoges(dogInfo)}>Save</Button>
+         {myDogsItem===undefined &&<Button onPress={() => saveInMyDoges(dogInfo)}>Save</Button>}
         </Card.Actions>
       </Card>
     </View>

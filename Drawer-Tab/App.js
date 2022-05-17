@@ -6,6 +6,7 @@ import { Provider as PaperProvider } from "react-native-paper";
 
 import "react-native-gesture-handler";
 import MyDrawer from "./navigation/MyDrawer";
+import MyStack from "./navigation/MyStack";
 
 export default function App() {
   return (
@@ -13,7 +14,7 @@ export default function App() {
       <StatusBar backgroundColor="white" style="dark" />
       {/*משנה את צבע הסטטוס בר למעלה */}
       <NavigationContainer>
-        <MyDrawer />
+   <MyStack/>
       </NavigationContainer>
     </PaperProvider>
   );
