@@ -1,10 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 
-import { Button, StyleSheet, Text, View, ScrollView } from "react-native";
-import { Init, AddNewItem, SelectAll } from "./database";
+import {
+  Button,
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  TextInput,
+} from "react-native";
+import { Init, AddNewPerson, SearchPerson } from "./database";
 export default function App() {
   const [data, setData] = useState([]);
+
+  const [name, setName] = useState();
+  const [age, setAge] = useState();
+  const [address, setAddress] = useState();
+  const [searchName, setSearchName] = useState();
   useEffect(() => {
     Init()
       .then(() => {
@@ -17,42 +29,85 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
       <StatusBar style="auto" />
-      <Button
-        title="Add Item"
-        onPress={() =>
-          AddNewItem("cola", 10)
-            .then((result) => {
-              console.log(result);
-            })
-            .catch(() => {
-              console.log("insert Item fail");
-            })
-        }
-      ></Button>
-      <Button
-        title="Select All"
-        onPress={() =>
-          SelectAll()
-            .then((result) => {
-              console.log(result.rows._array);
-              setData(result.rows._array)
-            })
-            .catch(() => {
-              console.log(" Select All fail");
-            })
-        }
-      ></Button>
+      <View
+        style={{
+          marginTop: 40,
+          flexDirection: "row",
+          justifyContent: "space-around",
+        }}
+      >
+   <View style={{ borderWidth:1,borderColor:'black'}}>
+          <TextInput
+            placeholder="Name"
+            onChangeText={(name) => setName(name)}
+          ></TextInput>
+        </View>
+        <View style={{ borderWidth:1,borderColor:'black'}}>
+          <TextInput
+            placeholder="Age"
+            onChangeText={(age) => setAge(age)}
+          ></TextInput>
+        </View>
+        <View style={{ borderWidth:1,borderColor:'black'}}>
+          <TextInput
+            placeholder="Address"
+            onChangeText={(address) => setAddress(address)}
+          ></TextInput>
+        </View>
+      </View>
+      <View style={{width:"20%" ,marginTop:10 , borderWidth:1,borderColor:'black'}}>
+        <Button
+          title="Add Item"
+          onPress={() =>
+            AddNewPerson(name, age, address)
+              .then((result) => {
+                console.log(result);
+              })
+              .catch(() => {
+                console.log("insert Item fail");
+              })
+          }
+        ></Button>
+      </View>
+      <View
+        style={{
+          margin: "10%",
+          justifyContent: "center",
+          alignItems: "center",
+          borderWidth:1,borderColor:'black'
+        }}
+      >
+        <TextInput
+          placeholder="SearchPerson"
+          onChangeText={(address) => setSearchName(address)}
+        ></TextInput>
+      </View>
+      <View style={{marginRight:50 ,marginLeft:50 ,justifyContent:'center', borderWidth:1,borderColor:'black'}}>
+        <Button
+          title="Search Person"
+          onPress={() =>
+            SearchPerson(searchName)
+              .then((result) => {
+                console.log(result.rows._array);
+                setData(result.rows._array);
+              })
+              .catch(() => {
+                console.log(" Select All fail");
+              })
+          }
+        ></Button>
+      </View>
       <ScrollView>
-        {data.map((X)=>{
+        {data.map((X) => {
           return (
             <View key={X.ID}>
-              <Text>
-                {X.ID}
-              </Text>
+              <Text>ID: {X.ID}</Text>
+              <Text>Name: {X.Name}</Text>
+              <Text>Age: {X.Age}</Text>
+              <Text>Address: {X.Address}</Text>
             </View>
-          )
+          );
         })}
       </ScrollView>
     </View>
@@ -63,7 +118,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
+    //  alignItems: "center",
+    //  justifyContent: "center",
   },
 });
